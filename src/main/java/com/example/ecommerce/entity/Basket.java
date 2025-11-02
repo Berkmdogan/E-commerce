@@ -14,16 +14,15 @@ public class Basket {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-    private int status;
+    private int  basketId;
     private double totalPrice;
+    private int status;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id")
-    private User user;
+    @OneToOne
+    @JoinColumn(name = "customer_id")
+    private Customer customer;
 
     @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL)
     private List<BasketProduct> basketProductList;
-
 
 }

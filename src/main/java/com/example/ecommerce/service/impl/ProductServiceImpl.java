@@ -1,75 +1,66 @@
 package com.example.ecommerce.service.impl;
 
 
+
 import com.example.ecommerce.dto.ProductDto;
 import com.example.ecommerce.entity.Product;
-import com.example.ecommerce.exception.RecordNotFoundExceptions;
 import com.example.ecommerce.mapper.ProductMapper;
 import com.example.ecommerce.repository.ProductRepository;
+import com.example.ecommerce.service.CategoryService;
 import com.example.ecommerce.service.ProductService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
-
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
-    @Autowired
-    private ProductRepository repository;
-    @Autowired
-    @Lazy
-    private ProductMapper productMapper;
 
-    public ProductServiceImpl(ProductRepository repository, ProductMapper productMapper) {
-        this.repository = repository;
-        this.productMapper = productMapper;
+    private final ProductRepository productRepository;
+    private final CategoryService categoryService;
+
+    @Override
+    public ProductDto save(ProductDto productDto) {
+        Product product = ProductMapper.toEntity(categoryService,productDto );
+        product = productRepository.save(product);
+        return ProductMapper.toDto(product);
     }
 
-    public ProductDto save(ProductDto dto) {
-        return productMapper.entityToDto(repository.save(productMapper.dtoToEntity(dto)));
-    }
-
-    public ProductDto get(String id) {
-        return productMapper.entityToDto(repository.findById(Long.parseLong(id)).orElseThrow(() -> (new RecordNotFoundExceptions(5000, "Product not found"))));
-    }
-
-    public void delete(String id) {
-        repository.deleteById(Long.parseLong(id));
-    }
-
-    public ProductDto update(String id, ProductDto dto) {
-        // String id'yi Long id'ye çeviriyoruz ve kategori var mı diye kontrol ediyoruz
-        Product existProduct = repository.findById(Long.parseLong(id))
-                .orElseThrow(() -> new RecordNotFoundExceptions(4000, "Product not found with id" + id));
-
-        // Mevcut product bilgilerini dto'dan gelen bilgilerle güncelliyoruz
-        Product updateProduct = productMapper.dtoToEntity(dto);
-        updateProduct.setId(existProduct.getId());// ID'nin korunması gerekebilir, çünkü yeni bir entity yaratıyoruz
-
-
-        return productMapper.entityToDto(repository.save(updateProduct));
+    @Override
+    public ProductDto getProduct(int id) {
+        Product product = productRepository.findById(Long.valueOf(id)).orElseThrow(() -> new RuntimeException("Product not found"));
+        return ProductMapper.toDto(product);
     }
 
     @Override
     public List<ProductDto> getAll() {
-        List<ProductDto> productDtoList = new ArrayList<>();
-
-        for (Product product : repository.findAll()) {
-            productDtoList.add(productMapper.entityToDto(product));
-        }
-        return productDtoList;
+        return productRepository.findAll().stream()
+                .map(ProductMapper::toDto)
+                .collect(Collectors.toList());
     }
 
+    @Override
+    public ProductDto update(Long id, ProductDto productDto) {
+        Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
 
-    public Product findProductById(Long productId) {
-        if(productId == null){
-            throw  new IllegalArgumentException("The given id must not be null");
-        }
-        return repository.findById(productId).orElseThrow();
+        product.setName(productDto.getName());
+        product.setDescription(productDto.getDescription());
+        product.setPrice(productDto.getPrice());
+        product.setStock(productDto.getStock());
+
+        Product updatedProduct = productRepository.save(product);
+        return ProductMapper.toDto(updatedProduct);
     }
+
+    @Override
+    public void delete(Long id) {
+        productRepository.deleteById(id);
+    }
+
 }
 
 

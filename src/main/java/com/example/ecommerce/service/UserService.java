@@ -10,23 +10,14 @@ import org.springframework.cache.annotation.Cacheable;
 import java.util.List;
 
 public interface UserService {
-    public UserDto save(UserDto dto);
+    UserDto save(UserDto userDto);
 
+    UserDto getUser(Long id);
 
-    @Cacheable(value = "users", key = "#id")
-    UserDto get(Long id);
+    List<UserDto> getAll();
 
-    @CacheEvict(value = "users", key = "#id")
+    UserDto update(Long id ,UserDto userDto);
+
     void delete(Long id);
-
-    @CachePut(value = "users", key = "#id")
-    UserDto update(Long id, UserDto dto);
-
-    public UserDto get(String id);
-    public void delete(String id);
-    public UserDto update(String id, UserDto dto);
-    public List<UserDto> getAll();
-
-
 
 }

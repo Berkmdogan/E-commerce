@@ -12,9 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class BasketResponse  {
-    private Long id;
+    private int basketId;
     private  int status;
     private double totalPrice;
-    private Long userId;
+    private int customerId;
     private List<BasketProductDto>basketProductList;
 }

@@ -13,40 +13,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 @Component
 public class BasketProductMapper {
-    @Autowired
-    private BasketServiceImpl basketService;
-    @Autowired
-    private ProductServiceImpl productService;
-
-    public List<BasketProduct> mapDtosToEntities(List<BasketProductDto> basketProductDtoList) {
-        if (basketProductDtoList == null) {
-            return Collections.emptyList();
-        }
-        return basketProductDtoList.stream()
-                .map(this::dtoToEntity)
-                .collect(Collectors.toList());
-    }
-
-    public BasketProduct dtoToEntity(BasketProductDto basketProductDto) {
-        return BasketProduct.builder()
-                .count(basketProductDto.getCount())
-                .id(basketProductDto.getId())
-                .totalAmount(basketProductDto.getTotalAmount())
-                .product(productService.findProductById(basketProductDto.getProductId()))
-                .basket(basketService.findBasketById(basketProductDto.getBasketId()))
-                .build();
-    }
-    public List<BasketProductDto> mapEntitesToDtos(List<BasketProduct> basketProductList){
-        return basketProductList.stream()
-                .map(this::entityToDto)
-                .collect(Collectors.toList());
-    }
-    public BasketProductDto entityToDto(BasketProduct basketProduct){
+    public static BasketProductDto toDto(BasketProduct basketProduct) {
         return BasketProductDto.builder()
-                .basketId(basketProduct.getBasket().getId())
-                .productId(basketProduct.getProduct().getId())
+                .basketProductId(basketProduct.getBasketProductId())
+                .basketProductAmount(basketProduct.getBasketProductTotalPrice())
                 .count(basketProduct.getCount())
-                .id(basketProduct.getId())
+                .product(ProductMapper.toDto(basketProduct.getProduct()))
                 .build();
     }
 }

@@ -2,12 +2,11 @@ package com.example.ecommerce.mapper;
 
 
 
+
 import com.example.ecommerce.dto.CategoryDto;
 import com.example.ecommerce.entity.Category;
 import com.example.ecommerce.request.CategoryRequest;
 import com.example.ecommerce.response.CategoryResponse;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -16,54 +15,37 @@ import java.util.stream.Collectors;
 
 @Component
 public class CategoryMapper {
-    @Autowired
-    @Lazy
-    private ProductMapper productMapper;
 
-
-    public CategoryResponse dtoToResponse(CategoryDto dto) {
-        return CategoryResponse.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .descrpition(dto.getDescription())
-                .productList(dto.getProductList())
-                .build();
-    }
-    public List<CategoryResponse> mapDtosToResponses(List<CategoryDto> categoryDtoList){
-        return categoryDtoList.stream()
-                .map(this::dtoToResponse)
-                .collect(Collectors.toList());
-    }
-
-    public CategoryDto requestToDto(CategoryRequest request) {
+    public static CategoryDto toDto(CategoryRequest categoryRequest) {
         return CategoryDto.builder()
-                .name(request.getName())
-                .description(request.getDescrpition())
+                .name(categoryRequest.getName())
+                .description(categoryRequest.getDescription())
                 .build();
-
     }
 
-    public Category dtoToEntity(CategoryDto dto) {
-        return Category.builder()
-                .name(dto.getName())
-                .description(dto.getDescription())
+    public static CategoryResponse toResponse(CategoryDto categoryDto) {
+        return CategoryResponse.builder()
+                .id(categoryDto.getId())
+                .name(categoryDto.getName())
+                .description(categoryDto.getDescription())
+                .productDtos(categoryDto.getProductDtos())
                 .build();
+    }
+    public static Category toEntity(CategoryDto categoryDto) {
 
+        Category category=new Category();
+        category.setName(categoryDto.getName());
+        category.setDescription(categoryDto.getDescription());
+
+        return category;
     }
 
-    public CategoryDto entityToDto(Category category) {
-        CategoryDto.CategoryDtoBuilder builder = CategoryDto.builder()
-                .id(category.getId())
+    public static CategoryDto toDto(Category category) {
+        return CategoryDto.builder()
+                .id(category.getCategoryId())
                 .name(category.getName())
-                .description(category.getDescription());
-
-        if (category.getProductList() != null) {
-            builder.productList(productMapper.mapEntitiesToDtos(category.getProductList()));
-        } else {
-            builder.productList(null); // veya isteğe bağlı bir değer atayabilirsiniz
-        }
-
-        return builder.build();
+                .description(category.getDescription())
+                .build();
     }
 
 }

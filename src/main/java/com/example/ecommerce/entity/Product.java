@@ -1,10 +1,9 @@
 package com.example.ecommerce.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.List;
 
 @Entity
 @Getter
@@ -16,18 +15,14 @@ public class Product {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
+    private int ProductId;
     private String name;
     private String description;
     private Double price;
+    private int stock;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER ,cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id")
     private Category category;
-
-    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL)
-    private List<BasketProduct> basketProductList;
-
 
 }

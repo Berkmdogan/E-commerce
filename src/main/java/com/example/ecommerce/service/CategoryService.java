@@ -1,18 +1,20 @@
 package com.example.ecommerce.service;
 
-
-
-
 import com.example.ecommerce.dto.CategoryDto;
+import com.example.ecommerce.entity.Category;
 
 import java.util.List;
 
 public interface CategoryService {
-    public CategoryDto save(CategoryDto dto);
-    public void delete(String id);
-    public CategoryDto update(String id, CategoryDto dto);
-    List<CategoryDto> getAll();
-    public CategoryDto get(String id);
+    CategoryDto save(CategoryDto categoryDto);
 
-    //public List<Category>getAll();
+    CategoryDto getCategory(Long id);
+
+    Category getEntity(Long id);
+
+    List<CategoryDto> getAll();
+
+    CategoryDto update(Long id, CategoryDto categoryDto);
+
+    void delete(Long id);
 }

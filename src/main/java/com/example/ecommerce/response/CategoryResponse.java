@@ -13,6 +13,6 @@ import java.util.List;
 public class CategoryResponse {
     private Long id;
     private String name;
-    private String descrpition;
-    private List<ProductDto> productList;
+    private String description;
+    private List<ProductDto> productDtos;
 }

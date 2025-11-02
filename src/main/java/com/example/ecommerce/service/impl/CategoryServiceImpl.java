@@ -1,77 +1,62 @@
 package com.example.ecommerce.service.impl;
 
 
+
 import com.example.ecommerce.dto.CategoryDto;
-import com.example.ecommerce.exception.RecordNotFoundExceptions;
+import com.example.ecommerce.entity.Category;
 import com.example.ecommerce.mapper.CategoryMapper;
 import com.example.ecommerce.repository.CategoryRepository;
 import com.example.ecommerce.service.CategoryService;
-
-import jdk.jfr.Category;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class CategoryServiceImpl implements CategoryService {
-    @Autowired
-    private CategoryRepository repository;
-    @Autowired
-    @Lazy
-    private CategoryMapper categoryMapper;
 
-    public CategoryServiceImpl(CategoryRepository repository, CategoryMapper categoryMapper) {
-        this.repository = repository;
-        this.categoryMapper = categoryMapper;
-    }
+    private final CategoryRepository categoryRepository;
 
-    public CategoryDto save(CategoryDto dto) {
-        return  categoryMapper.entityToDto(repository.save(categoryMapper.dtoToEntity(dto)));
-    }
     @Override
-    public CategoryDto get(String id) {
-        return categoryMapper.entityToDto((com.example.ecommerce.entity.Category) repository.findById(Long.parseLong(id))
-                .orElseThrow(()-> new RecordNotFoundExceptions(4000,"Category not found with id"+id)));
+    public CategoryDto save(CategoryDto categoryDto) {
+        Category category = CategoryMapper.toEntity(categoryDto);
+        categoryRepository.save(category);
+        return CategoryMapper.toDto(category);
     }
 
-    public void delete(String id) {
-        repository.deleteById(Long.parseLong(id));
+    @Override
+    public CategoryDto getCategory(Long id) {
+        Category category = (Category) categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        return CategoryMapper.toDto(category);
     }
 
-    public CategoryDto update(String id, CategoryDto dto) {
-        // String id'yi Long id'ye çeviriyoruz ve kategori var mı diye kontrol ediyoruz
-        Category existCategory = repository.findById(Long.parseLong(id))
-                .orElseThrow(()-> new RecordNotFoundExceptions(4000, "Category not found with id"+id));
-
-        // Mevcut kategori bilgilerini dto'dan gelen bilgilerle güncelliyoruz
-        Category updateCategory = (Category) categoryMapper.dtoToEntity(dto);
-        ((com.example.ecommerce.entity.Category) updateCategory).setId(existCategory.getId());// ID'nin korunması gerekebilir, çünkü yeni bir entity yaratıyoruz
+    @Override
+    public Category getEntity(Long id) {
 
 
-        return categoryMapper.entityToDto((com.example.ecommerce.entity.Category) repository.save(updateCategory));
+        return (Category) categoryRepository.findById(id).get();
     }
 
     @Override
     public List<CategoryDto> getAll() {
-        List<CategoryDto> categoryDtoList = new ArrayList<>();
-
-        for(Category category: repository.findAll()){
-            categoryDtoList.add(categoryMapper.entityToDto((com.example.ecommerce.entity.Category) category));
-        }
-        return categoryDtoList;
+        return categoryRepository.findAll().stream()
+                .map(CategoryMapper::toDto)
+                .collect(Collectors.toList());
     }
 
-    public com.example.ecommerce.entity.Category findCategoryById(Long categoryId){
-        if(categoryId == null){
-            throw  new IllegalArgumentException("The given id must not be null");
-        }
-        return (com.example.ecommerce.entity.Category) repository.findById(categoryId).orElseThrow();    }
+    @Override
+    public CategoryDto update(Long id, CategoryDto categoryDto) {
+        Category category = categoryRepository.findById(id).orElseThrow(() -> new RuntimeException("Category not found"));
+        category.setName(categoryDto.getName());
+        category.setDescription(categoryDto.getDescription());
+        Category updatedCategory = categoryRepository.save(category);
+        return CategoryMapper.toDto(updatedCategory);
+    }
 
-
-
-
+    @Override
+    public void delete(Long id) {
+        categoryRepository.deleteById(id);
+    }
 
 }

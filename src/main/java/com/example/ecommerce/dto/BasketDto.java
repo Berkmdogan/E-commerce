@@ -10,13 +10,9 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class BasketDto {
-    private Long id;
-    private int status;
+    private int basketId;
     private double totalPrice;
-    private Long userId;
+    private int status;
+    private CustomerDto customer;
     private List<BasketProductDto> basketProductList;
-    private  Long productId;
-    private int count;
-
-
 }

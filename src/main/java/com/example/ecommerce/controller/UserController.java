@@ -1,88 +1,63 @@
 package com.example.ecommerce.controller;
 
 
+import com.example.ecommerce.dto.UserDto;
 import com.example.ecommerce.mapper.UserMapper;
 import com.example.ecommerce.request.UserRequest;
 import com.example.ecommerce.response.UserResponse;
 import com.example.ecommerce.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("users")
 public class UserController {
-    @Autowired
-    private UserService service;
-    @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
 
-    @PostMapping
-    public UserResponse save(@RequestBody UserRequest request) {
-        return userMapper.dtoToResponse(service.save(userMapper.requestToDto(request)));
+    @PostMapping("create")
+    public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
+        UserDto userDto = UserMapper.toDto(userRequest);
+        return ResponseEntity.ok(UserMapper.toResponse(userService.save(userDto)));
     }
 
-
-    @GetMapping("/{id}")
-    public UserResponse get(@PathVariable(name = "id") String id) {
-        return userMapper.dtoToResponse(service.get(id));
+    @PutMapping("{id}")
+    public ResponseEntity<UserResponse> update(@PathVariable("id") @RequestBody UserDto userDto, Long userId) {
+        UserDto user = userService.update(userId, userDto);
+        return ResponseEntity.ok(UserMapper.toResponse(user));
     }
 
+    @GetMapping("{id}")
+    public ResponseEntity<UserResponse> getUser(@PathVariable("id")  Long id){
+        UserDto userDto =userService.getUser(id);
+        return ResponseEntity.ok(UserMapper.toResponse(userDto));
+    }
 
     @GetMapping
-    public List<UserResponse> getAll() {
-        return userMapper.dtosToResponses(service.getAll());
+    public ResponseEntity<List<UserResponse>> getAllUser() {
+        List<UserDto> userDtoList = userService.getAll();
+
+        // UserDto olan Kullanıcıları UserResponse nesnelerine dönüştürmek için stream API kullanıyoruz.
+        // userDtoList listesini bir akışa dönüştürüyoruz.
+        // .map(UserControllerMapper::toResponse) kısmı, her bir UserDto nesnesini UserResponse nesnesine dönüştürür.
+        // .collect(Collectors.toList()) ile dönüşen UserResponse nesnelerini bir listeye toplarız.
+        List<UserResponse> userResponseList = userDtoList.stream()
+                .map(UserMapper::toResponse)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(userResponseList);
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable(name = "id") String id) {
-        service.delete(id);
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable("id") Long Userid){
+        userService.delete(Userid);
+        return ResponseEntity.ok("User deleted successdully");
     }
-
-    @PutMapping("/{id}")
-    public UserResponse update(@PathVariable(name = "id") String id, @RequestBody UserRequest request) {
-        return userMapper.dtoToResponse(service.update(id, userMapper.requestToDto(request)));
-    }
-
-
-
-     /*
-    stream(): Bir koleksiyon üzerinde işlem yapmak için kullanılan bir Stream oluşturur.
-    Stream, koleksiyon elemanlarını tek tek işlemek için kullanılır.
-
-    map(this::toResponse): Stream üzerindeki her bir öğeyi toResponse metoduna uygular.
-    Burada this::toResponse, sınıf içindeki toResponse metodunu işaret eder.
-
-    collect(Collectors.toList()): Stream üzerindeki öğeleri bir List'e dönüştürür.
-
-    toList() metodu, Stream API'nin bir parçası olan Collectors sınıfından gelen bir metottur.
-
-    :: Bu operatör, bir metodu veya bir sınıfın yapıcısını referans almak için kullanılır.
-    Örneğin, this::toResponse, bu sınıf içindeki toResponse metodunu referans alır.
-
-    */
-
-
-    /*
-    public ResponseEntity<UserResponse> update(@PathVariable(name= "id") String id, @RequestBody UserRequest request) {
-    try {
-        UserDto dto = service.update(id, toDto(request));
-        UserResponse response = toResponse(dto);
-        return ResponseEntity.ok(response);
-    } catch (IllegalArgumentException e) {
-        UserResponse response = new UserResponse();
-        response.setErrorCode(4001);
-        response.setErrorMessage("Geçersiz istek.");
-        return ResponseEntity.badRequest().body(response);
-    } catch (RuntimeException e) {
-        UserResponse response = new UserResponse();
-        response.setErrorCode(4002);
-        response.setErrorMessage("Kullanıcı güncellenemedi.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
-}*/
-
 
 }

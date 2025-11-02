@@ -1,52 +1,45 @@
 package com.example.ecommerce.controller;
 
 
+import com.example.ecommerce.dto.BasketDto;
 import com.example.ecommerce.mapper.BasketMapper;
 import com.example.ecommerce.request.BasketRequest;
 import com.example.ecommerce.response.BasketResponse;
 import com.example.ecommerce.service.BasketService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/baskets")
+@RequiredArgsConstructor
 public class BasketController {
-    @Autowired
-    private BasketService service;
-    @Autowired
-    @Lazy
-    private BasketMapper basketMapper;
+
+    private final BasketService basketService;
+
     @PostMapping
-    public BasketResponse save(@RequestBody BasketRequest request) {
-        return basketMapper.dtoToResponse(service.save(basketMapper.requestToDto(request)));
+    public BasketResponse addProductToBasket(@RequestBody BasketRequest basketRequest){
+        return toResponse(basketService.addProductToBasket(basketRequest.toDto()));
     }
 
-
-
-    @GetMapping("/{id}")
-    public BasketResponse get(@PathVariable(name = "id") String id) {
-        return basketMapper.dtoToResponse(service.get(id));
+    @GetMapping("/{customerId}")
+    public BasketResponse getBasketByCustomerId(@PathVariable String customerId){
+        return toResponse(basketService.getBasketByCustomerId(customerId));
     }
 
-    @GetMapping
-    public List<BasketResponse> getAll(){
-        return basketMapper.mapDtosToResponses(service.getAll());
+    @DeleteMapping("/{basketItemId}")
+    public String delete(@PathVariable String basketItemId){
+        basketService.removeProductFromBasket(basketItemId);
+        return "Silme işlemi başarılı";
     }
 
-    @DeleteMapping("/{id}")
-    public void delete(@PathVariable(name = "id") String id) {
-        service.delete(id);
+    public BasketResponse toResponse(BasketDto basketDto) {
+        return BasketResponse.builder()
+                .basketId(basketDto.getBasketId())
+                .totalPrice(basketDto.getTotalPrice())
+                .customerId(basketDto.getCustomer().getCustomerId())
+                .basketProductList(basketDto.getBasketProductList())
+                .build();
     }
-
-    @PutMapping("/{id}")
-    public BasketResponse update(@PathVariable(name = "id") String id, @RequestBody BasketRequest request) {
-        return basketMapper.dtoToResponse(service.update(id, basketMapper.requestToDto(request)));
-    }
-
-
-
 
 }

@@ -14,16 +14,16 @@ public class BasketProduct {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
-
+    private int basketProductId;
     private int count;
-    private double totalAmount;
+    private double basketProductTotalPrice;
+
 
     @ManyToOne
-    @JoinColumn(name = "basket_id", referencedColumnName = "id")
+    @JoinColumn(name = "basket_id")
     private Basket basket;
 
     @ManyToOne
-    @JoinColumn(name = "product_id", referencedColumnName = "id")
+    @JoinColumn(name = "product_id")
     private Product product;
 }

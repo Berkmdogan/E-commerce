@@ -9,11 +9,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 public class UserRequest {
-    private String userName;
-    private String fullName;
-    private String password;
-    private String tckn;
-    private String birthPlace;
-    private Date birthDate;
-    private String telNo;
+    private String firstName;
+    private String lastName;
+    private String email;
 }

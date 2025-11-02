@@ -1,74 +1,53 @@
 package com.example.ecommerce.mapper;
 
 
+
 import com.example.ecommerce.dto.ProductDto;
 import com.example.ecommerce.entity.Product;
 import com.example.ecommerce.request.ProductRequest;
 import com.example.ecommerce.response.ProductResponse;
-import com.example.ecommerce.service.impl.CategoryServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.example.ecommerce.service.CategoryService;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.stream.Collectors;
+
 @Component
 public class ProductMapper {
-    @Autowired
-    private CategoryServiceImpl categoryService;
+    public static ProductDto toDto(ProductRequest productRequest) {
+        return ProductDto.builder()
+                .name(productRequest.getName())
+                .description(productRequest.getDescription())
+                .price(productRequest.getPrice())
+                .categoryId(productRequest.getCategoryId())
+                .build();
+    }
 
-    public ProductResponse dtoToResponse(ProductDto dto) {
+    public static ProductResponse toResponse(ProductDto productDto) {
         return ProductResponse.builder()
-                .id(dto.getId())
-                .name(dto.getName())
-                .description(dto.getDescription())
-                .price(dto.getPrice())
-                .categoryId(dto.getCategoryId())
+                .id(productDto.getId())
+                .name(productDto.getName())
+                .description(productDto.getDescription())
+                .price(productDto.getPrice())
+                .categoryId(productDto.getCategoryId())
                 .build();
     }
-
-    public List<ProductResponse> dtosToResponses(List<ProductDto> dtos) {
-        return dtos.stream()
-                .map(this::dtoToResponse)
-                .collect(Collectors.toList());
-    }
-    public ProductDto requestToDto(ProductRequest request) {
-        return ProductDto.builder()
-                .name(request.getName())
-                .price(request.getPrice())
-                .name(request.getName())
-                .description(request.getDescription())
-                .categoryId(request.getCategoryId())
-                .build();
-
-    }
-    public Product dtoToEntity(ProductDto dto) {
+    public static Product toEntity(CategoryService categoryService , ProductDto productDto) {
         return Product.builder()
-                .name(dto.getName())
-                .price(dto.getPrice())
-                .category(categoryService.findCategoryById(dto.getCategoryId()))
-                .description(dto.getDescription())
+                .ProductId(productDto.getId())
+                .name(productDto.getName())
+                .description(productDto.getDescription())
+                .price(productDto.getPrice())
+                .category(categoryService.getEntity(productDto.getCategoryId()))
+                .stock(productDto.getStock())
                 .build();
     }
-    public List<Product> mapDtosToEntity(List<ProductDto> productDtos){
-        return productDtos.stream()
-                .map(this::dtoToEntity)
-                .collect(Collectors.toList());
-    }
 
-
-    public ProductDto entityToDto(Product product) {
+    public static ProductDto toDto(Product product) {
         return ProductDto.builder()
-                .description(product.getDescription())
-                .id(product.getId())
-                .price(product.getPrice())
+                .id(product.getProductId())
                 .name(product.getName())
-                .categoryId(product.getCategory().getId())
+                .description(product.getDescription())
+                .price(product.getPrice())
+                .categoryId(product.getCategory().getCategoryId())
                 .build();
-    }
-
-    public List<ProductDto> mapEntitiesToDtos(List<Product> products) {
-        return products.stream()
-                .map(this::entityToDto)
-                .collect(Collectors.toList());
     }
 }

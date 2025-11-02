@@ -2,71 +2,37 @@ package com.example.ecommerce.mapper;
 
 
 import com.example.ecommerce.dto.BasketDto;
+import com.example.ecommerce.dto.ProductDto;
 import com.example.ecommerce.entity.Basket;
-import com.example.ecommerce.request.BasketRequest;
-import com.example.ecommerce.response.BasketResponse;
-import com.example.ecommerce.service.impl.UserServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
+import com.example.ecommerce.entity.Product;
+import com.example.ecommerce.service.CategoryService;
 import org.springframework.stereotype.Component;
-
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 @Component
 public class BasketMapper {
-    @Autowired
-    private UserServiceImpl userService;
-    @Autowired
-    @Lazy
-    private BasketProductMapper basketProductMapper;
+    public static Product toEntity(CategoryService categoryService , ProductDto productDto) {
+        return Product.builder()
+                .ProductId(productDto.getId())
+                .name(productDto.getName())
+                .description(productDto.getDescription())
+                .price(productDto.getPrice())
+                .category(categoryService.getEntity(productDto.getCategoryId()))
+                .stock(productDto.getStock())
+                .build();
+    }
 
-    public BasketDto requestToDto(BasketRequest request) {
+    public static BasketDto toDto(Basket basket){
+
         return BasketDto.builder()
-                .userId(request.getUserId())
-                .count(request.getCount())
-                .productId(request.getProductId())
-                .build();
-    }
-
-    public BasketResponse dtoToResponse(BasketDto dto) {
-        return BasketResponse.builder()
-                .id(dto.getId())
-                .status(dto.getStatus())
-                .totalPrice(dto.getTotalPrice())
-                .basketProductList(dto.getBasketProductList())
-                .userId(dto.getUserId())
-                .build();
-    }
-
-    public List<BasketResponse> mapDtosToResponses(List<BasketDto> basketDtoList) {
-        return basketDtoList.stream()
-                .map(this::dtoToResponse)
-                .collect(Collectors.toList());
-    }
-
-    public BasketDto entityToDto(Basket basket) {
-        BasketDto.BasketDtoBuilder builder  = BasketDto.builder()
-                .id(basket.getId())
-                .userId(basket.getUser().getId())
+                .basketId(basket.getBasketId())
+                .totalPrice(basket.getTotalPrice())
                 .status(basket.getStatus())
-                .totalPrice(basket.getTotalPrice());
-        if(basket.getBasketProductList() != null){
-            builder.basketProductList(basketProductMapper.mapEntitesToDtos(basket.getBasketProductList()));
-        }else {
-            builder.basketProductList(Collections.emptyList()); // veya isteğe bağlı bir değer atayabilirsiniz
-        }
-        return builder.build();
-    }
-
-
-    public Basket dtoToEntity(BasketDto dto) {
-        return Basket.builder()
-                .status(dto.getStatus())
-                .totalPrice(dto.getTotalPrice())
-                .user(userService.findUserById(dto.getUserId()))
-                .basketProductList(dto.getBasketProductList() != null ?
-                        basketProductMapper.mapDtosToEntities(dto.getBasketProductList()) : Collections.emptyList())
+                .customer(CustomerMapper.toDto(basket.getCustomer()))
+                .basketProductList(basket.getBasketProductList()
+                        .stream()
+                        .map(BasketProductMapper::toDto)
+                        .collect(Collectors.toList())
+                )
                 .build();
     }
 

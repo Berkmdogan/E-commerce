@@ -4,14 +4,12 @@ import lombok.*;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class BasketProductDto {
-    private Long id;
+    private int basketProductId;
     private int count;
-    private double totalAmount;
-    private Long productId;
-    private Long basketId;
+    private double basketProductAmount;
+    private final ProductDto product;
 
 }

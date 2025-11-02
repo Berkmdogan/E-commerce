@@ -1,12 +1,10 @@
 package com.example.ecommerce.repository;
 
 
-import jdk.jfr.Category;
+
+import com.example.ecommerce.entity.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface CategoryRepository extends JpaRepository<Category,Long> {
-    Category findCategoryById(Long id);
-
-    Category deleteCategoryById(Long id);
 
 }
