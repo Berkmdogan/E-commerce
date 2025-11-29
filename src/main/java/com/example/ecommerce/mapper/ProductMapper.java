@@ -11,15 +11,20 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
-
+    @Mapping(source = "category.id", target = "categoryId")
     ProductDto toDto(Product product);
 
+    @Mapping(target = "category", ignore = true)
     Product toEntity(ProductDto productDto);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "stock", ignore = true)
     ProductDto toDto(ProductRequest request);
 
+    @Mapping(source = "categoryId", target = "categoryId")
     ProductResponse toResponse(ProductDto dto);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "category", ignore = true)
     void updateEntity(@MappingTarget Product entity, ProductDto dto);
 }

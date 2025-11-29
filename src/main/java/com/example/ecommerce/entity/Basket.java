@@ -16,11 +16,13 @@ public class Basket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Builder.Default
     private Double totalPrice = 0.0;
     private int status;
     private Long customerId;
 
     @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private List<BasketProduct> products = new ArrayList<>();
 
 }
