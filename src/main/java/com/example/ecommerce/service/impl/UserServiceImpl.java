@@ -1,63 +1,58 @@
 package com.example.ecommerce.service.impl;
 
-
-
 import com.example.ecommerce.dto.UserDto;
 import com.example.ecommerce.entity.User;
-import com.example.ecommerce.mapper.UserMapper;
+import com.example.ecommerce.mapper.UserMapper; // Yeni Interface
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper; // ENJEKTE ETTİK
 
     @Override
     public UserDto save(UserDto userDto) {
-        User user = UserMapper.toEntity(userDto);
+        User user = userMapper.toEntity(userDto);
         userRepository.save(user);
-        return UserMapper.toDto(user);
-
+        return userMapper.toDto(user);
     }
 
     @Override
     public UserDto update(Long id, UserDto userDto) {
-        User user = userRepository.findById(id).get();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
+        // MapStruct ile güncelleme (hamallık yok)
+        userMapper.updateEntity(user, userDto);
 
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setEmail(userDto.getEmail());
-
-        User updatedUser=userRepository.save(user);
-
-        return UserMapper.toDto(updatedUser) ;
+        User updatedUser = userRepository.save(user);
+        return userMapper.toDto(updatedUser);
     }
-
 
     @Override
     public UserDto getUser(Long id) {
-        User user = userRepository.findById(id).get();
-        return UserMapper.toDto(user);
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return userMapper.toDto(user);
     }
-
 
     @Override
     public List<UserDto> getAll() {
-        return null;
+        return userRepository.findAll().stream()
+                .map(userMapper::toDto)
+                .collect(Collectors.toList());
     }
-
 
     @Override
     public void delete(Long id) {
-
+        userRepository.deleteById(id);
     }
-
 }

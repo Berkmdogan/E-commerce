@@ -3,11 +3,13 @@ package com.example.ecommerce.repository;
 
 import com.example.ecommerce.entity.Basket;
 import org.springframework.data.jpa.repository.JpaRepository;
-
+import java.util.Optional;
 
 public interface BasketRepository extends JpaRepository<Basket, Long> {
 
-    Basket findBasketByCustomer_CustomerIdAndStatusEquals(int customerId, int status);
+    // Entity'de direkt "customerId" alanı olduğu için metod ismi kısaldı:
+    // Eski: findBasketByCustomer_CustomerIdAndStatusEquals
+    // Yeni:
+    Optional<Basket> findByCustomerIdAndStatus(Long customerId, int status);
 
-    Basket findBasketByBasketId(int basketId);
 }

@@ -5,6 +5,7 @@ import com.example.ecommerce.dto.SuperAdminDto;
 import com.example.ecommerce.entity.SuperAdmin;
 import com.example.ecommerce.mapper.SuperAdminMapper;
 import com.example.ecommerce.repository.SuperAdminRepository;
+import com.example.ecommerce.service.CategoryService;
 import com.example.ecommerce.service.SuperAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,28 +18,26 @@ import java.util.stream.Collectors;
 public class SuperAdminServiceImpl implements SuperAdminService {
 
     private final SuperAdminRepository superAdminRepository;
-
+    private final SuperAdminMapper superAdminMapper; // INJECT EDİLDİ
+    private final CategoryService categoryService;
     @Override
     public SuperAdminDto save(SuperAdminDto superAdminDto) {
-        SuperAdmin superAdmin = SuperAdminMapper.toEntity(superAdminDto);
+        SuperAdmin superAdmin = superAdminMapper.toEntity(superAdminDto);
         superAdmin = superAdminRepository.save(superAdmin);
-        return SuperAdminMapper.toDto(superAdmin);
+        return superAdminMapper.toDto(superAdmin);
     }
 
     @Override
     public SuperAdminDto get(Long id) {
-        return superAdminRepository.findById(id)
-                .map(SuperAdminMapper::toDto)
+        SuperAdmin superAdmin = superAdminRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("SuperAdmin not found"));
+        return superAdminMapper.toDto(superAdmin);
     }
-
-
 
     @Override
     public List<SuperAdminDto> getAll() {
-        List<SuperAdmin> superAdmins = superAdminRepository.findAll();
-        return superAdmins.stream()
-                .map(SuperAdminMapper::toDto)
+        return superAdminRepository.findAll().stream()
+                .map(superAdminMapper::toDto)
                 .collect(Collectors.toList());
     }
 
@@ -49,11 +48,11 @@ public class SuperAdminServiceImpl implements SuperAdminService {
 
     @Override
     public CategoryDto saveCategory(CategoryDto dto) {
-        return null;
+        return categoryService.save(dto);
     }
 
     @Override
     public List<CategoryDto> getAllCategory() {
-        return null;
+        return categoryService.getAll();
     }
 }

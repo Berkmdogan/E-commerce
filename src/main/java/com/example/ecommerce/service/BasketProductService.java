@@ -5,9 +5,10 @@ import com.example.ecommerce.entity.BasketProduct;
 
 public interface BasketProductService {
 
-    BasketProduct findBasketItemByBasketIdAndProductId(int basketId, int productId);
+
+    BasketProduct findBasketItemByBasketIdAndProductId(Long basketId, Long productId);
 
     BasketProduct save(BasketProduct basketProduct);
 
-    void delete(int basketItemId);
+    void delete(Long basketProductId);
 }

@@ -1,12 +1,6 @@
 package com.example.ecommerce.service;
 
-
-
 import com.example.ecommerce.dto.UserDto;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-
 import java.util.List;
 
 public interface UserService {

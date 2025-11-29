@@ -1,6 +1,5 @@
 package com.example.ecommerce.service;
 
-import com.example.ecommerce.dto.ProductDto;
 import com.example.ecommerce.dto.ShopAdminDto;
 
 import java.util.List;
@@ -15,8 +14,4 @@ public interface ShopAdminService {
     ShopAdminDto update(ShopAdminDto shopAdminDto, Long id);
 
     void delete(Long id);
-
-    ProductDto addProduct(ProductDto productDto);
-
-    List<ProductDto> getAllProducts();
 }

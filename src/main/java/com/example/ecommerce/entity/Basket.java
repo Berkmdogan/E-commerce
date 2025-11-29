@@ -2,6 +2,7 @@ package com.example.ecommerce.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,16 +14,13 @@ import java.util.List;
 public class Basket {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int  basketId;
-    private double totalPrice;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private Double totalPrice = 0.0;
     private int status;
+    private Long customerId;
 
-    @OneToOne
-    @JoinColumn(name = "customer_id")
-    private Customer customer;
-
-    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL)
-    private List<BasketProduct> basketProductList;
+    @OneToMany(mappedBy = "basket", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BasketProduct> basketItems = new ArrayList<>();
 
 }

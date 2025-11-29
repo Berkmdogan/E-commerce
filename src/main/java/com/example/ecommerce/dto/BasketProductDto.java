@@ -7,9 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class BasketProductDto {
-    private int basketProductId;
+    private Long basketProductId;
     private int count;
     private double basketProductAmount;
     private final ProductDto product;
-
 }

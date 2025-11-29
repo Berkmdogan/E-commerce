@@ -1,55 +1,26 @@
 package com.example.ecommerce.mapper;
 
-
-
 import com.example.ecommerce.dto.UserDto;
 import com.example.ecommerce.entity.User;
 import com.example.ecommerce.request.UserRequest;
 import com.example.ecommerce.response.UserResponse;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+
+@Mapper(componentModel = "spring")
+public interface UserMapper {
+
+    UserDto toDto(User user);
+
+    User toEntity(UserDto userDto);
+
+    UserDto toDto(UserRequest userRequest);
 
 
-@Component
-public class UserMapper {
-    public static UserDto toDto(UserRequest userRequest) {
-        return UserDto.builder()
-                .firstName(userRequest.getFirstName())
-                .lastName(userRequest.getLastName())
-                .email(userRequest.getEmail())
-
-                .build();
+    UserResponse toResponse(UserDto userDto);
 
 
-    }
-
-    public static UserResponse toResponse(UserDto userDto) {
-        return UserResponse.builder()
-                .id(userDto.getId())
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .email(userDto.getEmail())
-                .build();
-
-    }
-    public static User toEntity(UserDto userDto) {
-        return User.builder()
-                .id(userDto.getId())
-                .firstName(userDto.getFirstName())
-                .lastName(userDto.getLastName())
-                .email(userDto.getEmail())
-                .build();
-    }
-
-    public static UserDto toDto(User user) {
-
-        return UserDto.builder()
-                .id(user.getId())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .email(user.getEmail())
-
-                .build();
-
-    }
-
+    @Mapping(target = "id", ignore = true)
+    void updateEntity(@MappingTarget User entity, UserDto dto);
 }

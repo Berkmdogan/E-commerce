@@ -1,137 +1,152 @@
 package com.example.ecommerce.service.impl;
 
-
-
 import com.example.ecommerce.dto.BasketDto;
 import com.example.ecommerce.dto.BasketProductDto;
 import com.example.ecommerce.entity.Basket;
 import com.example.ecommerce.entity.BasketProduct;
-import com.example.ecommerce.entity.Customer;
 import com.example.ecommerce.entity.Product;
 import com.example.ecommerce.mapper.BasketMapper;
-import com.example.ecommerce.mapper.CustomerMapper;
+import com.example.ecommerce.repository.BasketProductRepository;
 import com.example.ecommerce.repository.BasketRepository;
-import com.example.ecommerce.service.*;
-
+import com.example.ecommerce.repository.CustomerRepository;
+import com.example.ecommerce.repository.ProductRepository;
+import com.example.ecommerce.service.BasketProductService;
+import com.example.ecommerce.service.BasketService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class BasketServiceImpl implements BasketService {
-    private final BasketRepository repository;
-    private final BasketProductService basketProductService;
-    private final ProductService productService;
-    private final CategoryService categoryService;
-    private final CustomerService customerService;
 
-    public final int BASKET_STATUS_NONE = 0;
+    private final BasketRepository basketRepository;
+    private final BasketProductRepository basketProductRepository;
+    private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
+    private final BasketMapper basketMapper;
+    private final BasketProductService basketProductService;
+
+    public final int BASKET_STATUS_ACTIVE = 0;
 
     @Override
+    @Transactional
     public BasketDto addProductToBasket(BasketDto basketDto) {
+        Long customerId = basketDto.getCustomer().getCustomerId();
 
+        Optional<Basket> optionalBasket = basketRepository.findByCustomerIdAndStatus(customerId, BASKET_STATUS_ACTIVE);
 
-        //müşteri ID ve sepet durumu ile aktif sepeti bulur
-        Basket basket = repository.findBasketByCustomer_CustomerIdAndStatusEquals(basketDto.getCustomer().getCustomerId(), BASKET_STATUS_NONE);
-        if (basket != null) {
-            return sepetVarUrunEKle(basket, basketDto);
+        Basket updatedBasket;
+        if (optionalBasket.isPresent()) {
+            updatedBasket = addToExistingBasket(optionalBasket.get(), basketDto);
         } else {
-            return sepetYokYeniSepetOlustur(basketDto);
+            updatedBasket = createNewBasket(basketDto);
         }
+
+        return basketMapper.toDto(updatedBasket);
     }
 
     @Override
     public BasketDto getBasketByCustomerId(String customerId) {
-        Basket basket = repository.findBasketByCustomer_CustomerIdAndStatusEquals(Integer.parseInt(customerId), BASKET_STATUS_NONE);
-        return BasketMapper.toDto(basket);
-    }
+        Long cId = Long.parseLong(customerId);
+        Basket basket = basketRepository.findByCustomerIdAndStatus(cId, BASKET_STATUS_ACTIVE)
+                .orElseThrow(() -> new RuntimeException("Aktif sepet bulunamadı"));
 
+        return basketMapper.toDto(basket);
+    }
 
     @Override
+    @Transactional
     public void removeProductFromBasket(String basketItemId) {
-        basketProductService.delete(Integer.parseInt(basketItemId));
+        basketProductRepository.deleteById(Long.parseLong(basketItemId));
     }
 
-    private BasketDto sepetVarUrunEKle(Basket basket, BasketDto basketDto) {
-        List<BasketProduct> basketItemList = basket.getBasketProductList(); //sepette mevcut ürünlerin listesi
-        BasketProduct basketProduct = basketProductService.findBasketItemByBasketIdAndProductId(basket.getBasketId(), basketDto.getBasketProductList().get(0).getProduct().getId());
-        if (basketProduct == null) {  //Eğer ürün sepette yoksa yeni bir ürün eklenir
-            System.out.println("Eklenen ürün sepette yok");
+    // --- YARDIMCI METODLAR ---
+
+    private Basket addToExistingBasket(Basket basket, BasketDto basketDto) {
+        BasketProductDto productToAdd = basketDto.getBasketProductList().get(0);
+        // ProductDto'da artık Long id kullanılıyor
+        Long productId = productToAdd.getProduct().getId();
+
+        BasketProduct existingItem = basketProductService.findBasketItemByBasketIdAndProductId(basket.getId(), productId);
+        if (existingItem != null) {
+            log.info("Ürün sepette bulundu, güncelleniyor. ID: " + productId);
+            existingItem.setCount(existingItem.getCount() + productToAdd.getCount());
+
+            double unitPrice = existingItem.getProduct().getPrice();
+            existingItem.setTotalPrice(existingItem.getCount() * unitPrice);
+
+            basketProductRepository.save(existingItem);
+        } else {
+            log.info("Ürün sepette yok, ekleniyor. ID: " + productId);
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Ürün bulunamadı"));
+
             BasketProduct newBasketProduct = new BasketProduct();
-            Product product = findProductById(basketDto.getBasketProductList().get(0).getProduct().getId());
-            //Product product=basketItem.getProduct();//ürünü sepette olmayan bir ürün olarak alıyor bunun içinde 58. satır gereklidir
-            newBasketProduct.setProduct(product);
             newBasketProduct.setBasket(basket);
-            newBasketProduct.setCount(basketDto.getBasketProductList().get(0).getCount());
-            newBasketProduct.setBasketProductTotalPrice(basketDto.getBasketProductList().get(0).getCount() * product.getPrice());
+            newBasketProduct.setProduct(product);
+            newBasketProduct.setCount(productToAdd.getCount());
+            newBasketProduct.setTotalPrice(productToAdd.getCount() * product.getPrice());
 
-            basketItemList.add(newBasketProduct);
-
-        } else {  //ürün sepetete varsa miktar güncellenir
-            System.out.println("Ekelenen ürün sepette var");
-            System.out.println("liste var mı" + basketDto.getBasketProductList());
-            System.out.println("basketItemList boş mu" + basketDto.getBasketProductList().get(0).getProduct().getName());
-            System.out.println("BasketItem" + basketProduct);
-
-            //Eklenen ürün sepette var
-            Product product = basketProduct.getProduct();//mevcut ürünü alıyorum
-            basketProduct.setProduct(product);
-            basketProduct.setCount(basketDto.getBasketProductList().get(0).getCount());
-            basketProduct.setBasket(basket);
-            basketProduct.setBasketProductTotalPrice(basketDto.getBasketProductList().get(0).getCount() * product.getPrice());//yeni toplam fiyat belirlenir
+            basket.getBasketItems().add(newBasketProduct);
         }
 
-        basket.setTotalPrice(calculateBasketAmount(basket.getBasketId()));//sepet toplamı hesaplanır
-        basket.setBasketProductList(basketItemList);
-        repository.save(basket);
-        return BasketMapper.toDto(basket);
+        updateBasketTotalPrice(basket);
+        return basketRepository.save(basket);
     }
 
-    private double calculateBasketAmount(int basketId) {
-        Basket basket = repository.findBasketByBasketId(basketId);
-        double totalAmount = 0.0;
-        for (BasketProduct basketProduct : basket.getBasketProductList()) {
-            totalAmount += basketProduct.getBasketProductTotalPrice();
-        }
-        return totalAmount;
-    }
-
-
-    private Product findProductById(int productId) {
-        return BasketMapper.toEntity(categoryService, productService.getProduct(productId));
-    }
-
-    private BasketDto sepetYokYeniSepetOlustur(BasketDto basketDto) {
+    private Basket createNewBasket(BasketDto basketDto) {
+        log.info("Yeni sepet oluşturuluyor...");
         Basket basket = new Basket();
-        Customer customer = findCustomerById(String.valueOf(basketDto.getCustomer().getCustomerId()));
-        basket.setCustomer(customer);
-        basket.setStatus(BASKET_STATUS_NONE);
-        List<BasketProduct> basketProductList = new ArrayList<>();
-        for (BasketProductDto basketProductDto : basketDto.getBasketProductList()) {
-            BasketProduct basketProduct = new BasketProduct();
-            basketProduct.setBasketProductTotalPrice(basketProductDto.getCount());
-            basketProduct.setProduct(findProductById(basketProductDto.getProduct().getId()));
-            basketProduct.setBasket(basket);
-            basketProduct.setCount(basketProductDto.getCount());
-            basketProductList.add(basketProduct);
 
+        // CustomerDto'da artık Long id kullanılıyor
+        Long customerId = basketDto.getCustomer().getCustomerId();
+
+        if (!customerRepository.existsById(customerId)) {
+            throw new RuntimeException("Müşteri bulunamadı!");
         }
-        basket.setBasketProductList(basketProductList);
-        basket.setTotalPrice(basket.getBasketProductList().get(0).getCount() * basketProductList.get(0).getProduct().getPrice());
 
-        return BasketMapper.toDto(repository.save(basket));
+        basket.setCustomerId(customerId);
+        basket.setStatus(BASKET_STATUS_ACTIVE);
+
+        List<BasketProduct> newBasketItems = new ArrayList<>();
+
+        for (BasketProductDto itemDto : basketDto.getBasketProductList()) {
+            // ProductDto'da artık Long id kullanılıyor
+            Long productId = itemDto.getProduct().getId();
+            Product product = productRepository.findById(productId)
+                    .orElseThrow(() -> new RuntimeException("Ürün bulunamadı"));
+
+            BasketProduct basketProduct = new BasketProduct();
+            basketProduct.setBasket(basket);
+            basketProduct.setProduct(product);
+            basketProduct.setCount(itemDto.getCount());
+            basketProduct.setTotalPrice(itemDto.getCount() * product.getPrice());
+
+            newBasketItems.add(basketProduct);
+        }
+
+        basket.setBasketItems(newBasketItems);
+
+        double total = newBasketItems.stream()
+                .mapToDouble(BasketProduct::getTotalPrice).sum();
+        basket.setTotalPrice(total);
+
+        return basketRepository.save(basket);
     }
 
-
-    public Customer findCustomerById(String id) {
-        return CustomerMapper.toEntity(customerService.getCustomer(Long.valueOf(id)));
+    private void updateBasketTotalPrice(Basket basket) {
+        double totalAmount = basket.getBasketItems().stream()
+                .mapToDouble(BasketProduct::getTotalPrice)
+                .sum();
+        basket.setTotalPrice(totalAmount);
     }
 }
-
-
-
 

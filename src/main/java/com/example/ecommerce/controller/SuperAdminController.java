@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/super-admin")
 public class SuperAdminController {
     private final SuperAdminService superAdminService;
+    private final SuperAdminMapper SuperAdminMapper;
 
     @PostMapping("/create")
     public ResponseEntity<SuperAdminResponse> createSuperAdmin(@RequestBody SuperAdminRequest superAdminRequest) {

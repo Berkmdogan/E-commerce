@@ -13,11 +13,11 @@ import lombok.*;
 public class BasketProduct {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int basketProductId;
-    private int count;
-    private double basketProductTotalPrice;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
+    private int count;
+    private Double totalPrice; // count * product price
 
     @ManyToOne
     @JoinColumn(name = "basket_id")

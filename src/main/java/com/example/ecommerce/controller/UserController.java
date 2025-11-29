@@ -19,7 +19,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("users")
 public class UserController {
-    private UserService userService;
+    private final UserService userService;
+    private final UserMapper UserMapper;
 
     @PostMapping("create")
     public ResponseEntity<UserResponse> createUser(@RequestBody UserRequest userRequest) {
@@ -28,7 +29,8 @@ public class UserController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<UserResponse> update(@PathVariable("id") @RequestBody UserDto userDto, Long userId) {
+    public ResponseEntity<UserResponse> update(@PathVariable("id") Long userId, @RequestBody UserRequest userRequest) { // Parametreler düzeltildi
+        UserDto userDto = UserMapper.toDto(userRequest);
         UserDto user = userService.update(userId, userDto);
         return ResponseEntity.ok(UserMapper.toResponse(user));
     }
@@ -43,10 +45,6 @@ public class UserController {
     public ResponseEntity<List<UserResponse>> getAllUser() {
         List<UserDto> userDtoList = userService.getAll();
 
-        // UserDto olan Kullanıcıları UserResponse nesnelerine dönüştürmek için stream API kullanıyoruz.
-        // userDtoList listesini bir akışa dönüştürüyoruz.
-        // .map(UserControllerMapper::toResponse) kısmı, her bir UserDto nesnesini UserResponse nesnesine dönüştürür.
-        // .collect(Collectors.toList()) ile dönüşen UserResponse nesnelerini bir listeye toplarız.
         List<UserResponse> userResponseList = userDtoList.stream()
                 .map(UserMapper::toResponse)
                 .collect(Collectors.toList());

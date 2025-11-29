@@ -5,12 +5,12 @@ import com.example.ecommerce.dto.ShopAdminDto;
 import com.example.ecommerce.entity.ShopAdmin;
 import com.example.ecommerce.mapper.ShopAdminMapper;
 import com.example.ecommerce.repository.ShopAdminRepository;
+import com.example.ecommerce.service.ProductService;
 import com.example.ecommerce.service.ShopAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -18,43 +18,39 @@ import java.util.stream.Collectors;
 public class ShopAdminServiceImpl implements ShopAdminService {
 
     private final ShopAdminRepository shopAdminRepository;
-
+    private final ShopAdminMapper shopAdminMapper; // INJECT EDİLDİ
+    private final ProductService productService; // ⬅️ ProductService enjekte edildi
     @Override
     public ShopAdminDto save(ShopAdminDto shopAdminDto) {
-        ShopAdmin shopAdmin = ShopAdminMapper.toEntity(shopAdminDto);
+        ShopAdmin shopAdmin = shopAdminMapper.toEntity(shopAdminDto);
         shopAdmin = shopAdminRepository.save(shopAdmin);
-        return ShopAdminMapper.toDto(shopAdmin);
+        return shopAdminMapper.toDto(shopAdmin);
     }
 
     @Override
     public ShopAdminDto getShopAdmin(Long id) {
-        Optional<ShopAdmin> shopAdmin = shopAdminRepository.findById(id);
-        return shopAdmin.map(ShopAdminMapper::toDto).orElse(null);
+        ShopAdmin shopAdmin = shopAdminRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("ShopAdmin not found"));
+        return shopAdminMapper.toDto(shopAdmin);
     }
 
     @Override
     public List<ShopAdminDto> getAllShopAdmin() {
-        List<ShopAdmin> shopAdmins = shopAdminRepository.findAll();
-        return shopAdmins.stream().map(ShopAdminMapper::toDto).collect(Collectors.toList());
+        return shopAdminRepository.findAll().stream()
+                .map(shopAdminMapper::toDto)
+                .collect(Collectors.toList());
     }
 
     @Override
     public ShopAdminDto update(ShopAdminDto shopAdminDto, Long id) {
         ShopAdmin shopAdmin = shopAdminRepository.findById(id)
-                .map(existingShopAdmin -> {
-                    existingShopAdmin.setName(shopAdminDto.getName());
-                    existingShopAdmin.setSurname(shopAdminDto.getSurname());
-                    existingShopAdmin.setEmail(shopAdminDto.getEmail());
-                    existingShopAdmin.setPhoneNumber(shopAdminDto.getPhoneNumber());
-                    existingShopAdmin.setAddress(shopAdminDto.getAddress());
-                    existingShopAdmin.setPassword(shopAdminDto.getPassword());
-                    existingShopAdmin.setShopName(shopAdminDto.getShopName());
-                    return existingShopAdmin;
-                })
                 .orElseThrow(() -> new RuntimeException("ShopAdmin not found"));
 
+        // MapStruct ile güncelleme
+        shopAdminMapper.updateEntity(shopAdmin, shopAdminDto);
+
         shopAdmin = shopAdminRepository.save(shopAdmin);
-        return ShopAdminMapper.toDto(shopAdmin);
+        return shopAdminMapper.toDto(shopAdmin);
     }
 
     @Override
@@ -62,16 +58,13 @@ public class ShopAdminServiceImpl implements ShopAdminService {
         shopAdminRepository.deleteById(id);
     }
 
-
     @Override
     public ProductDto addProduct(ProductDto productDto) {
-
-        return null;
+        return productService.save(productDto);
     }
 
     @Override
     public List<ProductDto> getAllProducts() {
-
-        return null;
+        return productService.getAll();
     }
 }

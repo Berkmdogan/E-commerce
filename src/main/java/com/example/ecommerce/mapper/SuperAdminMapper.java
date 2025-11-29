@@ -4,36 +4,19 @@ import com.example.ecommerce.dto.SuperAdminDto;
 import com.example.ecommerce.entity.SuperAdmin;
 import com.example.ecommerce.request.SuperAdminRequest;
 import com.example.ecommerce.response.SuperAdminResponse;
+import org.mapstruct.Mapper;
+import org.mapstruct.MappingTarget;
 
-public class SuperAdminMapper {
-    public static SuperAdminDto toDto(SuperAdminRequest superAdminRequest) {
-        return SuperAdminDto.builder()
-                .superAdminId(superAdminRequest.getSuperAdminId())
-                .username(superAdminRequest.getUsername())
-                .password(superAdminRequest.getPassword())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface SuperAdminMapper {
 
-    public static SuperAdminResponse toResponse(SuperAdminDto superAdminDto) {
-        return SuperAdminResponse.builder()
-                .superAdminId(superAdminDto.getSuperAdminId())
-                .username(superAdminDto.getUsername())
-                .password(superAdminDto.getPassword())
-                .build();
-    }
-    public static SuperAdminDto toDto(SuperAdmin superAdmin) {
-        return SuperAdminDto.builder()
-                .superAdminId(superAdmin.getSuperAdminId())
-                .username(superAdmin.getUsername())
-                .password(superAdmin.getPassword())
-                .build();
-    }
+    SuperAdminDto toDto(SuperAdmin superAdmin);
 
-    public static SuperAdmin toEntity(SuperAdminDto superAdminDto) {
-        return SuperAdmin.builder()
-                .superAdminId(superAdminDto.getSuperAdminId())
-                .username(superAdminDto.getUsername())
-                .password(superAdminDto.getPassword())
-                .build();
-    }
+    SuperAdmin toEntity(SuperAdminDto dto);
+
+    SuperAdminDto toDto(SuperAdminRequest request);
+
+    SuperAdminResponse toResponse(SuperAdminDto dto);
+
+    void updateEntity(@MappingTarget SuperAdmin entity, SuperAdminDto dto);
 }

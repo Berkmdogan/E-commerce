@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/categories")
 public class CategoryController {
     private final CategoryService categoryService;
+    private final CategoryMapper CategoryMapper;
 
     @PostMapping("create")
     public ResponseEntity<CategoryResponse> createCategory(@RequestBody CategoryRequest categoryRequest) {

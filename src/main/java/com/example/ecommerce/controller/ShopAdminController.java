@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/shop-admin")
 public class ShopAdminController {
     private final ShopAdminService shopAdminService;
+    private final ShopAdminMapper ShopAdminMapper;
 
     @PostMapping("create")
     public ResponseEntity<ShopAdminResponse> createShopAdmin(@RequestBody ShopAdminRequest shopAdminRequest) {

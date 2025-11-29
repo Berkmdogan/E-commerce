@@ -16,38 +16,38 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final CustomerMapper customerMapper; // INJECT EDİLDİ
 
     @Override
     public CustomerDto save(CustomerDto customerDto) {
-        Customer customer = CustomerMapper.toEntity(customerDto);
+        Customer customer = customerMapper.toEntity(customerDto);
         Customer savedCustomer = customerRepository.save(customer);
-        return CustomerMapper.toDto(savedCustomer);
+        return customerMapper.toDto(savedCustomer);
     }
 
     @Override
     public CustomerDto update(CustomerDto customerDto, Long id) {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-        customer.setName(customerDto.getName());
-        customer.setSurname(customerDto.getSurname());
-        customer.setEmail(customerDto.getEmail());
-        customer.setPhoneNumber(customerDto.getPhoneNumber());
-        customer.setAddress(customerDto.getAddress());
-        customer.setPassword(customerDto.getPassword());
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+        // MapStruct ile güncelleme
+        customerMapper.updateEntity(customer, customerDto);
+
         Customer updatedCustomer = customerRepository.save(customer);
-        return CustomerMapper.toDto(updatedCustomer);
+        return customerMapper.toDto(updatedCustomer);
     }
 
     @Override
     public CustomerDto getCustomer(Long id) {
-        Customer customer = customerRepository.findById(id).orElseThrow(() -> new RuntimeException("Customer not found"));
-        return CustomerMapper.toDto(customer);
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Customer not found"));
+        return customerMapper.toDto(customer);
     }
 
     @Override
     public List<CustomerDto> getAllCustomer() {
-        List<Customer> customers = customerRepository.findAll();
-        return customers.stream()
-                .map(CustomerMapper::toDto)
+        return customerRepository.findAll().stream()
+                .map(customerMapper::toDto)
                 .collect(Collectors.toList());
     }
 

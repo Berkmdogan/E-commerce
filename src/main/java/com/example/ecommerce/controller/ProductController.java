@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @RequestMapping("products")
 public class ProductController {
     private final ProductService productService;
+    private final ProductMapper ProductMapper;
 
     @PostMapping("create")
     public ResponseEntity<ProductResponse> createProduct(@RequestBody ProductRequest productRequest) {
@@ -27,13 +28,14 @@ public class ProductController {
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<ProductResponse> update(@PathVariable("id") Long id, @RequestBody ProductDto productDto) {
+    public ResponseEntity<ProductResponse> update(@PathVariable("id") Long id, @RequestBody ProductRequest productRequest) { // ProductRequest kullanıldı
+        ProductDto productDto = ProductMapper.toDto(productRequest); // Request DTO'ya dönüştürüldü
         ProductDto updatedProduct = productService.update(id, productDto);
         return ResponseEntity.ok(ProductMapper.toResponse(updatedProduct));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") int id) {
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") Long id) { // int -> Long olarak düzeltildi
         ProductDto productDto = productService.getProduct(id);
         return ResponseEntity.ok(ProductMapper.toResponse(productDto));
     }
@@ -53,6 +55,4 @@ public class ProductController {
         productService.delete(id);
         return ResponseEntity.ok("Product deleted successfully");
     }
-
-
 }

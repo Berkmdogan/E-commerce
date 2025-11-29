@@ -12,12 +12,14 @@ import org.springframework.stereotype.Service;
 public class BasketProductServiceImpl implements BasketProductService {
 
     private final BasketProductRepository repository;
-    private final ProductServiceImpl productService;
+
+
 
     @Override
-    public BasketProduct findBasketItemByBasketIdAndProductId(int basketId, int productId) {
-        return repository.findBasketItemByBasket_BasketIdAndProduct_ProductId(basketId,productId);
+    public BasketProduct findBasketItemByBasketIdAndProductId(Long basketId, Long productId) {
+        return repository.findByBasket_IdAndProduct_Id(basketId, productId);
     }
+
 
     @Override
     public BasketProduct save(BasketProduct basketItem) {
@@ -25,9 +27,7 @@ public class BasketProductServiceImpl implements BasketProductService {
     }
 
     @Override
-    public void delete(int basketProductId) {
-
-        BasketProduct basketProduct=repository.findById(Long.valueOf(basketProductId)).get();
-
+    public void delete(Long basketProductId) {
+        repository.deleteById(basketProductId);
     }
 }

@@ -14,15 +14,15 @@ import lombok.*;
 public class Product {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int ProductId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id; // int -> Long olarak düzeltildi
     private String name;
     private String description;
     private Double price;
     private int stock;
 
-    @ManyToOne(fetch = FetchType.EAGER ,cascade = CascadeType.ALL)
-    @JoinColumn(name = "category_id")
-    private Category category;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id") // Sütun adını belirttik
+    private Category category;
 }

@@ -9,7 +9,7 @@ import java.util.List;
 public interface ProductService {
     ProductDto save(ProductDto productDto);
 
-    ProductDto getProduct(int id);
+    ProductDto getProduct(Long id);
 
     List<ProductDto> getAll();
 

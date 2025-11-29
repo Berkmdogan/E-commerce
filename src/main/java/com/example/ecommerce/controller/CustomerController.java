@@ -14,8 +14,10 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/customers") // Eklendi
 public class CustomerController {
     private final CustomerService customerService;
+    private final CustomerMapper CustomerMapper;
 
     @PostMapping("create")
     public ResponseEntity<CustomerResponse> createCustomer(@RequestBody CustomerRequest customerRequest) {

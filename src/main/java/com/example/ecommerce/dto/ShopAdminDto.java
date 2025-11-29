@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShopAdminDto {
-    private Long id;
+    private Long shopAdminId;
     private String name;
     private String surname;
     private String email;
