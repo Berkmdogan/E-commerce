@@ -57,14 +57,4 @@ public class ShopAdminServiceImpl implements ShopAdminService {
     public void delete(Long id) {
         shopAdminRepository.deleteById(id);
     }
-
-    @Override
-    public ProductDto addProduct(ProductDto productDto) {
-        return productService.save(productDto);
-    }
-
-    @Override
-    public List<ProductDto> getAllProducts() {
-        return productService.getAll();
-    }
 }

@@ -33,12 +33,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public Category getEntity(Long id) {
-        return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
-    }
-
-    @Override
     public List<CategoryDto> getAll() {
         return categoryRepository.findAll().stream()
                 .map(categoryMapper::toDto)

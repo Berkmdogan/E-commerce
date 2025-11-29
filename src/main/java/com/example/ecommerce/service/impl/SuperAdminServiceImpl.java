@@ -45,14 +45,4 @@ public class SuperAdminServiceImpl implements SuperAdminService {
     public void delete(Long id) {
         superAdminRepository.deleteById(id);
     }
-
-    @Override
-    public CategoryDto saveCategory(CategoryDto dto) {
-        return categoryService.save(dto);
-    }
-
-    @Override
-    public List<CategoryDto> getAllCategory() {
-        return categoryService.getAll();
-    }
 }
