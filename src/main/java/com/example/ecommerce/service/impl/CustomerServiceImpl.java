@@ -5,6 +5,7 @@ import com.example.ecommerce.entity.Customer;
 import com.example.ecommerce.mapper.CustomerMapper;
 import com.example.ecommerce.repository.CustomerRepository;
 import com.example.ecommerce.service.CustomerService;
+import com.example.ecommerce.service.MessageProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,19 +18,20 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final CustomerMapper customerMapper;
+    private final MessageProducer messageProducer;
 
     @Override
     public CustomerDto save(CustomerDto customerDto) {
-
         String email = customerDto.getEmail();
         Customer existingCustomer = customerRepository.findCustomerByEmail(email);
-
         if (existingCustomer != null) {
             throw new RuntimeException("Bu e-posta adresi (" + email + ") zaten başka bir kullanıcı tarafından kullanılıyor.");
         }
         Customer customer = customerMapper.toEntity(customerDto);
         Customer savedCustomer = customerRepository.save(customer);
-        return customerMapper.toDto(savedCustomer);
+        CustomerDto savedDto = customerMapper.toDto(savedCustomer); // Yeni DTO objesi
+        messageProducer.sendCustomerCreationMessage(savedDto);
+        return savedDto;
     }
 
     @Override
