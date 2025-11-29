@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/customers") // Eklendi
+@RequestMapping("/customers")
 public class CustomerController {
     private final CustomerService customerService;
     private final CustomerMapper CustomerMapper;

@@ -8,7 +8,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SuperAdminRequest {
-    private Long superAdminId;
     private String username;
     private String password;
 }

@@ -25,24 +25,16 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDto save(ProductDto productDto) {
-        // 1. Önce Kategori var mı diye kontrol ediyoruz
         Category category = categoryRepository.findById(productDto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Kategori bulunamadı! ID: " + productDto.getCategoryId()));
-
-        // 2. DTO -> Entity dönüşümü
         Product product = productMapper.toEntity(productDto);
-
-        // 3. İlişkiyi set ediyoruz (Entity'deki Category objesini set etmeliyiz)
         product.setCategory(category);
-
-        // 4. Kayıt
         Product savedProduct = productRepository.save(product);
-
         return productMapper.toDto(savedProduct);
     }
 
     @Override
-    public ProductDto getProduct(Long id) { // Sadece Long parametreli metot kaldı
+    public ProductDto getProduct(Long id) {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ürün bulunamadı! ID: " + id));
         return productMapper.toDto(product);
@@ -61,12 +53,8 @@ public class ProductServiceImpl implements ProductService {
         Product existingProduct = productRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Güncellenecek ürün bulunamadı! ID: " + id));
 
-        // 1. MapStruct ile temel alanları güncelle
         productMapper.updateEntity(existingProduct, productDto);
-
-        // 2. Eğer kategori değiştiyse veya null değilse güncelle
         if (productDto.getCategoryId() != null) {
-            // Mevcut kategorisi ile yeni gelen kategori ID farklıysa:
             if (existingProduct.getCategory() == null || !existingProduct.getCategory().getId().equals(productDto.getCategoryId())) {
                 Category newCategory = categoryRepository.findById(productDto.getCategoryId())
                         .orElseThrow(() -> new RuntimeException("Yeni kategori bulunamadı!"));

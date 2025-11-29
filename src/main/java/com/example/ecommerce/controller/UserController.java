@@ -7,7 +7,6 @@ import com.example.ecommerce.request.UserRequest;
 import com.example.ecommerce.response.UserResponse;
 import com.example.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -48,7 +47,6 @@ public class UserController {
         List<UserResponse> userResponseList = userDtoList.stream()
                 .map(UserMapper::toResponse)
                 .collect(Collectors.toList());
-
         return ResponseEntity.ok(userResponseList);
     }
 

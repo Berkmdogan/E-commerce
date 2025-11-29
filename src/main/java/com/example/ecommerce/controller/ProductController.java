@@ -29,13 +29,13 @@ public class ProductController {
 
     @PutMapping("{id}")
     public ResponseEntity<ProductResponse> update(@PathVariable("id") Long id, @RequestBody ProductRequest productRequest) { // ProductRequest kullanıldı
-        ProductDto productDto = ProductMapper.toDto(productRequest); // Request DTO'ya dönüştürüldü
+        ProductDto productDto = ProductMapper.toDto(productRequest);
         ProductDto updatedProduct = productService.update(id, productDto);
         return ResponseEntity.ok(ProductMapper.toResponse(updatedProduct));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") Long id) { // int -> Long olarak düzeltildi
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") Long id) {
         ProductDto productDto = productService.getProduct(id);
         return ResponseEntity.ok(ProductMapper.toResponse(productDto));
     }

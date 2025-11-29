@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/super-admin")
+
 public class SuperAdminController {
     private final SuperAdminService superAdminService;
     private final SuperAdminMapper SuperAdminMapper;

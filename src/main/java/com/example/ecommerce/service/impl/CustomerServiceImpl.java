@@ -16,10 +16,17 @@ import java.util.stream.Collectors;
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
-    private final CustomerMapper customerMapper; // INJECT EDİLDİ
+    private final CustomerMapper customerMapper;
 
     @Override
     public CustomerDto save(CustomerDto customerDto) {
+
+        String email = customerDto.getEmail();
+        Customer existingCustomer = customerRepository.findCustomerByEmail(email);
+
+        if (existingCustomer != null) {
+            throw new RuntimeException("Bu e-posta adresi (" + email + ") zaten başka bir kullanıcı tarafından kullanılıyor.");
+        }
         Customer customer = customerMapper.toEntity(customerDto);
         Customer savedCustomer = customerRepository.save(customer);
         return customerMapper.toDto(savedCustomer);
@@ -29,10 +36,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerDto update(CustomerDto customerDto, Long id) {
         Customer customer = customerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Customer not found"));
-
-        // MapStruct ile güncelleme
         customerMapper.updateEntity(customer, customerDto);
-
         Customer updatedCustomer = customerRepository.save(customer);
         return customerMapper.toDto(updatedCustomer);
     }

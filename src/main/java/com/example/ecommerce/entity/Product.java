@@ -23,6 +23,6 @@ public class Product {
 
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id") // Sütun adını belirttik
+    @JoinColumn(name = "category_id")
     private Category category;
 }

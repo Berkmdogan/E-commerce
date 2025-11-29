@@ -2,7 +2,7 @@ package com.example.ecommerce.service.impl;
 
 import com.example.ecommerce.dto.UserDto;
 import com.example.ecommerce.entity.User;
-import com.example.ecommerce.mapper.UserMapper; // Yeni Interface
+import com.example.ecommerce.mapper.UserMapper;
 import com.example.ecommerce.repository.UserRepository;
 import com.example.ecommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final UserMapper userMapper; // ENJEKTE ETTİK
+    private final UserMapper userMapper;
 
     @Override
     public UserDto save(UserDto userDto) {
@@ -29,10 +29,7 @@ public class UserServiceImpl implements UserService {
     public UserDto update(Long id, UserDto userDto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // MapStruct ile güncelleme (hamallık yok)
         userMapper.updateEntity(user, userDto);
-
         User updatedUser = userRepository.save(user);
         return userMapper.toDto(updatedUser);
     }

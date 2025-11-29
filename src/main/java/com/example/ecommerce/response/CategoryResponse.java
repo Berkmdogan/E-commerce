@@ -14,5 +14,5 @@ public class CategoryResponse {
     private Long id;
     private String name;
     private String description;
-    private List<ProductDto> productDtos;
+    private List<ProductDto> products;
 }

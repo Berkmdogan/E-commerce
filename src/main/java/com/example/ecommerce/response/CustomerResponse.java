@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerResponse {
-    private Long id;
+    private Long customerId;
     private int code;
     private String message;
     private String name;

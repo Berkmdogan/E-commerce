@@ -18,8 +18,8 @@ import java.util.stream.Collectors;
 public class SuperAdminServiceImpl implements SuperAdminService {
 
     private final SuperAdminRepository superAdminRepository;
-    private final SuperAdminMapper superAdminMapper; // INJECT EDİLDİ
-    private final CategoryService categoryService;
+    private final SuperAdminMapper superAdminMapper;
+
     @Override
     public SuperAdminDto save(SuperAdminDto superAdminDto) {
         SuperAdmin superAdmin = superAdminMapper.toEntity(superAdminDto);

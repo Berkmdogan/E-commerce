@@ -10,30 +10,25 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Builder
-@Data
-@NoArgsConstructor // Lombok Builder ile Data kullanıldığı için eklendi
-@AllArgsConstructor // Lombok Builder ile Data kullanıldığı için eklendi
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BasketRequest {
 
-    private Long customerId; // int -> Long olarak düzeltildi
-    private Long productId;  // int -> Long olarak düzeltildi
+    private Long customerId;
+    private Long productId;
     private int count;
 
     public BasketDto toDto(){
-        // ProductDto'nun id'si Long olduğu için Long ile oluşturmalıyız.
         ProductDto productDto = ProductDto.builder().id(productId).build();
-
         BasketProductDto dto = BasketProductDto.builder()
                 .product(productDto)
                 .count(count)
-                .basketProductAmount(0.0) // İlk oluşturmada 0.0 olabilir
                 .build();
-
         List<BasketProductDto> dtoList = new ArrayList<>();
         dtoList.add(dto);
-
         return BasketDto.builder()
                 .customer(CustomerDto.builder().customerId(customerId).build())
                 .basketProductList(dtoList)

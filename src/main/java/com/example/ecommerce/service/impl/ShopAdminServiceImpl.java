@@ -1,11 +1,9 @@
 package com.example.ecommerce.service.impl;
 
-import com.example.ecommerce.dto.ProductDto;
 import com.example.ecommerce.dto.ShopAdminDto;
 import com.example.ecommerce.entity.ShopAdmin;
 import com.example.ecommerce.mapper.ShopAdminMapper;
 import com.example.ecommerce.repository.ShopAdminRepository;
-import com.example.ecommerce.service.ProductService;
 import com.example.ecommerce.service.ShopAdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,8 +16,8 @@ import java.util.stream.Collectors;
 public class ShopAdminServiceImpl implements ShopAdminService {
 
     private final ShopAdminRepository shopAdminRepository;
-    private final ShopAdminMapper shopAdminMapper; // INJECT EDİLDİ
-    private final ProductService productService; // ⬅️ ProductService enjekte edildi
+    private final ShopAdminMapper shopAdminMapper;
+
     @Override
     public ShopAdminDto save(ShopAdminDto shopAdminDto) {
         ShopAdmin shopAdmin = shopAdminMapper.toEntity(shopAdminDto);
@@ -46,7 +44,6 @@ public class ShopAdminServiceImpl implements ShopAdminService {
         ShopAdmin shopAdmin = shopAdminRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ShopAdmin not found"));
 
-        // MapStruct ile güncelleme
         shopAdminMapper.updateEntity(shopAdmin, shopAdminDto);
 
         shopAdmin = shopAdminRepository.save(shopAdmin);
